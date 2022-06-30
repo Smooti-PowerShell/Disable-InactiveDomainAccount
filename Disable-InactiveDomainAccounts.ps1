@@ -4,7 +4,7 @@
         and move them to an alternative location.
     
     .Notes
-        Name: Event-Backup
+        Name: Disable-InactiveDomainAccounts
         Author: Robert Owens
         Date: May 20, 2021
         Version: 1.2
@@ -60,9 +60,9 @@ If (-NOT([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentit
 }
 
 # Gets all inactive accounts
-$InactiveUsers = Search-ADAccount -AccountInactive -TimeSpan $MaxIdle -SearchBase $Search -SearchScope SubTree | Where { $_.enabled -and $_.DistinguishedName -notmatch "Disabled|Inactive" }
+$InactiveUsers = Search-ADAccount -AccountInactive -TimeSpan $MaxIdle -SearchBase $Search -SearchScope SubTree | Where-Object { $_.enabled -and $_.DistinguishedName -notmatch "Disabled|Inactive" }
 
-if ($InactiveUsers -eq $null) {
+if ($null -eq $InactiveUsers) {
     Write-Warning "No inactive accounts found!"
     Exit
 }

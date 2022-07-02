@@ -51,7 +51,9 @@ If (-NOT([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentit
 }
 
 # * Gets all inactive accounts
-$InactiveUsers = Search-ADAccount -AccountInactive -TimeSpan $MaxIdle -SearchBase $Search -SearchScope SubTree | Where-Object { $_.enabled -and $_.DistinguishedName -notmatch "Disabled|Inactive" }
+$InactiveUsers = Search-ADAccount -AccountInactive -TimeSpan $MaxIdle -SearchBase $Search -SearchScope SubTree | Where-Object {
+	$_.enabled -and $_.DistinguishedName -notmatch "Disabled|Inactive"
+}
 
 if ($null -eq $InactiveUsers) {
 	Write-Warning "No inactive accounts found!"

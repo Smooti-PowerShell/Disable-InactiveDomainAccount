@@ -64,6 +64,6 @@ if ($null -eq $InactiveUsers) {
 foreach ($User in $InactiveUsers) {
 	$UserDescrition = ($User | Get-ADUser -Properties Description).Description
 	Disable-ADAccount $User
-	Set-ADUser $User -Description "$UserDescrition - Disabled (Inactivity) - $TodaysDate"
+	Set-ADUser $User -Description "$UserDescrition - Disabled (Inactivity) - $(Get-Date -Format "dddd MM/dd/yyyy HH:mm")"
 	Move-ADObject $User -DestinationPath $Destination
 }

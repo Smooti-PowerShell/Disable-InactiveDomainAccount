@@ -1,4 +1,5 @@
-﻿<#
+﻿#Requires –Modules ActiveDirectory
+<#
     .Synopsis
         This script will disable accounts from Active Directory that have been inactive for 35 days
         and move them to an alternative location.
@@ -32,44 +33,35 @@
 #>
 
 param (
-    [Parameter (Mandatory = $true)]
-    $Search,
+	[Parameter (Mandatory = $true)]
+	$Search,
 
-    [Parameter (Mandatory = $true)]
-    $Destination,
+	[Parameter (Mandatory = $true)]
+	$Destination,
 
-    $LogPath = "$($PSScriptRoot)\Logs",
+	$LogPath = "$($PSScriptRoot)\Logs",
 
-    $MaxIdle = "35"
+	$MaxIdle = "35"
 )
 
-# * Confirm ActiveDirectory module is able to be imported
-if ((Get-Module -ListAvailable).Name -eq "ActiveDirectory") {
-    Import-Module ActiveDirectory
-}
-else {
-    Write-Warning "ActiveDirectory module not found!"
-    Write-Warning "Please run on machine that has RSAT tools installed."
-    exit
-}
-
+Import-Module ActiveDirectory
 # * Confirm we have an elevated session.
 If (-NOT([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Throw "You must run this from an elevated PowerShell session."
+	Throw "You must run this from an elevated PowerShell session."
 }
 
 # * Gets all inactive accounts
 $InactiveUsers = Search-ADAccount -AccountInactive -TimeSpan $MaxIdle -SearchBase $Search -SearchScope SubTree | Where-Object { $_.enabled -and $_.DistinguishedName -notmatch "Disabled|Inactive" }
 
 if ($null -eq $InactiveUsers) {
-    Write-Warning "No inactive accounts found!"
-    Exit
+	Write-Warning "No inactive accounts found!"
+	Exit
 }
 
 # * Disables and Moves the accounts to a separate OU within AD
 foreach ($User in $InactiveUsers) {
-    $UserDescrition = ($User | Get-ADUser -Properties Description).Description
-    Disable-ADAccount $User
-    Set-ADUser $User -Description "$UserDescrition - Disabled (Inactivity) - $TodaysDate"
-    Move-ADObject $User -DestinationPath $Destination
+	$UserDescrition = ($User | Get-ADUser -Properties Description).Description
+	Disable-ADAccount $User
+	Set-ADUser $User -Description "$UserDescrition - Disabled (Inactivity) - $TodaysDate"
+	Move-ADObject $User -DestinationPath $Destination
 }

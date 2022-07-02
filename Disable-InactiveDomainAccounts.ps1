@@ -43,7 +43,7 @@ param (
     $MaxIdle = "35"
 )
 
-# * Confirm ActiveDirectory module is able to be installed
+# * Confirm ActiveDirectory module is able to be imported
 if ((Get-Module -ListAvailable).Name -eq "ActiveDirectory") {
     Import-Module ActiveDirectory
 }

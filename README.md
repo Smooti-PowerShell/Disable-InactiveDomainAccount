@@ -1,7 +1,3 @@
-## Notes
-
-The requirement for disabling accounts after 35 days due to non-use is a Security Technical Implementation Guideline (STIG) requirement mandated by Defense Information Systems Agency (DISA). The STIG stipulates that all accounts are to be disabled after 35 days of inactivity/no access.
-
 <!-- PROJECT LOGO -->
 <p align="center" style="text-align: center">
 	<a href="https://github.com/Smooti-PowerShell/Disable-InactiveDomainAccount">
@@ -38,6 +34,7 @@ The requirement for disabling accounts after 35 days due to non-use is a Securit
 <!-- ABOUT THE PROJECT -->
 
 ## Introduction
+The requirement for disabling accounts after 35 days due to non-use is a Security Technical Implementation Guideline (STIG) requirement mandated by Defense Information Systems Agency (DISA). The STIG stipulates that all accounts are to be disabled after 35 days of inactivity/no access.
 
 ### Built With
 

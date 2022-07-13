@@ -4,7 +4,7 @@
         This script will disable accounts from Active Directory that have been inactive for 35 days
         and move them to an alternative location.
     .Notes
-        Name: Disable-InactiveDomainAccounts
+        Name: Disable-InactiveDomainAccount
         Author: Robert Owens
         Date: May 20, 2021
         Version: 1.2

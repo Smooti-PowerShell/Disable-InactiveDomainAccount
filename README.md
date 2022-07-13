@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <p align="center" style="text-align: center">
 	<a href="https://github.com/Smooti-PowerShell/Disable-InactiveDomainAccount">
-		<img src="https://avatars.githubusercontent.com/u/66232763?v=4" width="20%">
+		<img src="./images/no-crowd.png" width="20%">
 	</a><br />
 </p>
 

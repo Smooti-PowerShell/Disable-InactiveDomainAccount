@@ -59,7 +59,7 @@ _For more examples and a list of options, please precede the cmdlet with `Get-He
 Example.
 
 ```powershell
-Get-Help Disable-InactiveDomainAccount
+Get-Help Disable-InactiveDomainAccount.ps1
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>

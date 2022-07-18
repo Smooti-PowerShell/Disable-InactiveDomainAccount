@@ -46,7 +46,7 @@ The requirement for disabling accounts after 35 days due to non-use is a Securit
 
 ### Prerequisites
 
--   Minimum PowerShell version 3.0
+-   Minimum PowerShell version 5.1
 
 <!-- USAGE EXAMPLES -->
 

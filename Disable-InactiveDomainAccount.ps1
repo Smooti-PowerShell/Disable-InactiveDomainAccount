@@ -1,4 +1,4 @@
-﻿#Requires –Modules ActiveDirectory
+#Requires –Modules ActiveDirectory
 <#
     .Synopsis
         This script will disable accounts from Active Directory that have been inactive for 35 days
@@ -13,31 +13,32 @@
         Technical Implementation Guideline (STIG) requirement mandated by Defense
         Information Systems Agency (DISA). The STIG stipulates that all accounts are to be
         disabled after 35 days of inactivity/no access.
-    .PARAMETER Search
+    .PARAMETER SearchBase
         Mandatory. Location to search within ActiveDirectory.
         Ex. "OU=Users,DC=lab,DC=local"
-    .PARAMETER Destination
-        Mandatory. Location to move accounts within ActiveDirectory.
-        Ex. "OU=Inactive,OU=Users,DC=lab,DC=local"
+    .PARAMETER SearchScope
+        How far to search within ActiveDirectory
+        Ex. OneLevel
     .PARAMETER LogPath
         Optional. Path to place logs.
     .PARAMETER MaxIdle
         Optional. Max inactive time for an account.
 		DEFAULT: 35
     .EXAMPLE
-        Disable-InactiveDomainAccounts -Search "OU=Users,DC=lab,DC=local" -Destination "OU=Inactive,OU=Users,DC=lab,DC=local"
+        Disable-InactiveDomainAccounts -SearchScope "OU=Users,DC=lab,DC=local"
     .EXAMPLE
-        Disable-InactiveDomainAccounts -Search "OU=Users,DC=lab,DC=local" -Destination "OU=Inactive,OU=Users,DC=lab,DC=local" -LogPath "C:\MyLogs"
+        Disable-InactiveDomainAccounts -SearchScope "OU=Users,DC=lab,DC=local" -SearchBase OneLevel -LogPath "C:\MyLogs"
     .EXAMPLE
-        Disable-InactiveDomainAccounts -Search "OU=Users,DC=lab,DC=local" -Destination "OU=Inactive,OU=Users,DC=lab,DC=local" -LogPath "C:\MyLogs" -MaxIdle 75
+        Disable-InactiveDomainAccounts -SearchScope "OU=Users,DC=lab,DC=local" -LogPath "C:\MyLogs" -MaxIdle 75
 #>
 
 param (
 	[Parameter (Mandatory = $true)]
-	$Search,
+	$SearchBase,
 
-	[Parameter (Mandatory = $true)]
-	$Destination,
+	[ValidateSet("SubTree", "OneLevel", "Base")]
+	[String]
+	$SearchScope = "SubTree",
 
 	$LogPath = "$($PSScriptRoot)\Logs",
 
@@ -45,25 +46,33 @@ param (
 )
 
 Import-Module ActiveDirectory
-# * Confirm we have an elevated session.
+# Confirm we have an elevated session.
 If (-NOT([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
 	Throw "You must run this from an elevated PowerShell session."
 }
 
-# * Gets all inactive accounts
-$InactiveUsers = Search-ADAccount -AccountInactive -TimeSpan $MaxIdle -SearchBase $Search -SearchScope SubTree | Where-Object {
+$searchArgs = @{
+	AccountInactive = $true
+	TimeSpan        = $MaxIdle
+	SearchBase      = $SearchBase
+	SearchScope     = $SearchScope
+	UsersOnly       = $true
+}
+
+# Get all inactive accounts
+$inactiveUsers = Search-ADAccount @searchArgs | Where-Object {
 	$_.enabled -and $_.DistinguishedName -notmatch "Disabled|Inactive"
 }
 
-if ($null -eq $InactiveUsers) {
+# Check if we have inactive accounts
+if ($null -eq $inactiveUsers) {
 	Write-Warning "No inactive accounts found!"
 	Exit
 }
 
-# * Disables and Moves the accounts to a separate OU within AD
-foreach ($User in $InactiveUsers) {
-	$UserDescrition = ($User | Get-ADUser -Properties Description).Description
-	Disable-ADAccount $User
-	Set-ADUser $User -Description "$UserDescrition - Disabled (Inactivity) - $(Get-Date -Format "dddd MM/dd/yyyy HH:mm")"
-	Move-ADObject $User -DestinationPath $Destination
+# Disable accounts
+foreach ($user in $inactiveUsers) {
+	$userDescription = ($user | Get-ADUser -Properties Description).Description
+	Disable-ADAccount $user
+	Set-ADUser $user -Description "$userDescription - Disabled (Inactivity) - $(Get-Date -Format "dddd MM/dd/yyyy HH:mm")"
 }
